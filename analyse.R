@@ -32,10 +32,13 @@ df <- deaths %>%
            | country == c("Germany", "Italy", "Spain")
            | (country == "China" & province == "Hubei"))
 
-ggplot(df, aes(x=offset, y=cumDeaths, color=country)) +
+cumDeaths <- ggplot(df, aes(x=offset, y=cumDeaths, color=country)) +
     geom_point() +
     geom_line() +
     scale_y_log10()
 
-ggplot(df, aes(x=offset, y=dailyDeaths, color=country)) +
+dailyDeaths <- ggplot(df, aes(x=offset, y=dailyDeaths, color=country)) +
     geom_density(stat="identity")
+
+ggsave("cumDeaths.png", plot=cumDeaths, dpi=720, width=7, height=7)
+ggsave("dailyDeaths.png", plot=dailyDeaths, dpi=720, width=7, height=7)
