@@ -1,6 +1,7 @@
 library(tidyr)
 library(dplyr)
 library(data.table)
+library(ggplot2)
 
 deaths_raw <- read.csv("/Users/pkryger/gh/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv")
 
