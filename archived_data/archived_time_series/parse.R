@@ -3,7 +3,7 @@ library(dplyr)
 library(data.table)
 library(ggplot2)
 
-deaths_raw <- read.csv("/Users/pkryger/gh/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv")
+deaths_raw <- read.csv("/Users/pkryger/gh/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
 
 deaths <- deaths_raw %>%
     pivot_longer(names_to="date", values_to="cumDeaths", cols=starts_with("X")) %>%
@@ -28,7 +28,7 @@ deaths <- left_join(deaths, first_deaths) %>%
                            FUN = pk.revcumsum))
 
 df <- deaths %>%
-    filter((country == "United Kingdom" & province == "United Kingdom")
+    filter((country == "United Kingdom" & province == "")
            | country == c("Germany", "Italy", "Spain")
            | (country == "China" & province == "Hubei"))
 
