@@ -51,7 +51,7 @@ deaths <- deaths %>%
 
 df <- deaths %>%
     filter((country == "United Kingdom" & province == "")
-           | country %in% c("Germany", "Italy", "Spain")
+           | country %in% c("Germany", "Italy", "Spain", "US", "France")
            | (country == "China" & province == "Hubei"))
 
 cumDeaths <- ggplot(df, aes(x=offset, y=cumDeaths, color=country)) +
