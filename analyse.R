@@ -24,8 +24,7 @@ pk.revcumsum <- function(x) {
 
 pk.inter <- function(x) {
     if (length(x) > 2) {
-        y <- table(x)
-        if (!is.na(y["0"]) & length(x) - y["0"] > 2) {
+        if (length(x) - length(which(x == 0)) > 2) {
             return(x %>%
                    na_if(0) %>%
                    na_interpolation(option="linear") %>%
