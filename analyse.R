@@ -52,17 +52,21 @@ pk.smooth <- function(x) {
 }
 
 deaths <- left_join(deaths, first_deaths) %>%
-    mutate(offset=date-firstDeath) %>%
+    mutate(offset=date-firstDeath)
+
+deaths <- deaths %>%
     mutate(dailyDeaths=ave(deaths$cumDeaths,
                            deaths$country, deaths$province,
-                           FUN = pk.revcumsum)) %>%
-    mutate(dailyDeathsSmooth=ave(deaths$dailyDeaths,
-                                 deaths$country, deaths$province,
-                                 FUN = pk.smooth))
+                           FUN = pk.revcumsum))
+
+    ## %>%
+    ## mutate(dailyDeathsSmooth=ave(deaths$dailyDeaths,
+    ##                              deaths$country, deaths$province,
+    ##                              FUN = pk.smooth))
 
 df <- deaths %>%
     filter((country == "United Kingdom" & province == "")
-           | country == c("Germany", "Italy", "Spain")
+           | country %in% c("Germany", "Italy", "Spain")
            | (country == "China" & province == "Hubei"))
 
 cumDeaths <- ggplot(df, aes(x=offset, y=cumDeaths, color=country)) +
