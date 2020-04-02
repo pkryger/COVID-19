@@ -37,7 +37,7 @@ pk.inter <- function(x) {
 
 
 deaths <- left_join(deaths, first_deaths) %>%
-    mutate(offset=date-firstDeath)
+    mutate(day=date-firstDeath)
 
 deaths <- deaths %>%
     mutate(dailyDeaths=ave(deaths$cumDeaths,
@@ -55,15 +55,15 @@ df <- deaths %>%
            | country %in% c("Germany", "Italy", "Spain", "US")
            | (country == "China" & province == "Hubei"))
 
-cumDeaths <- ggplot(df, aes(x=offset, y=cumDeaths, color=country)) +
+cumDeaths <- ggplot(df, aes(x=day, y=cumDeaths, color=country)) +
     geom_point() +
     geom_line() +
     scale_y_log10()
 
-dailyDeaths <- ggplot(df, aes(x=offset, y=dailyDeaths, color=country)) +
+dailyDeaths <- ggplot(df, aes(x=day, y=dailyDeaths, color=country)) +
     geom_density(stat="identity")
 
-dailyDeathsInter <- ggplot(df, aes(x=offset, y=dailyDeathsInter, color=country)) +
+dailyDeathsInter <- ggplot(df, aes(x=day, y=dailyDeathsInter, color=country)) +
     geom_density(stat="identity")
 
 ggsave("cumDeaths.png", plot=cumDeaths, dpi=720, width=7, height=7)
