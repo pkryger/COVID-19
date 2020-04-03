@@ -58,15 +58,21 @@ df <- deaths %>%
 
 cumDeaths <- ggplot(df, aes(x=day, y=cumDeaths, color=country)) +
     geom_point() +
-    geom_line() +
-    scale_y_log10()
+    geom_line()
 
 dailyDeaths <- ggplot(df, aes(x=day, y=dailyDeaths, color=country)) +
-    geom_density(stat="identity")
+    geom_line()
 
 dailyDeathsInter <- ggplot(df, aes(x=day, y=dailyDeathsInter, color=country)) +
-    geom_density(stat="identity")
+    geom_line()
+
+cumDeathsLog10 <- cumDeaths + scale_y_log10()
+dailyDeathsLog10 <- dailyDeaths + scale_y_log10()
+dailyDeathsInterLog10 <- dailyDeathsInter + scale_y_log10()
 
 ggsave("cumDeaths.png", plot=cumDeaths, dpi=720, width=7, height=7)
 ggsave("dailyDeaths.png", plot=dailyDeaths, dpi=720, width=7, height=7)
 ggsave("dailyDeathsInter.png", plot=dailyDeathsInter, dpi=720, width=7, height=7)
+ggsave("cumDeathsLog10.png", plot=cumDeathsLog10, dpi=720, width=7, height=7)
+ggsave("dailyDeathsLog10.png", plot=dailyDeathsLog10, dpi=720, width=7, height=7)
+ggsave("dailyDeathsInterLog10.png", plot=dailyDeathsInterLog10, dpi=720, width=7, height=7)
