@@ -19,7 +19,8 @@ first_deaths <- deaths %>%
 
 pk.revcumsum <- function(x) {
     return(x -
-           shift(x, n=1, type="lag", fill=0))
+           shift(x, n=1, type="lag") %>%
+           replace_na(x[1]))
 }
 
 pk.inter <- function(x) {
