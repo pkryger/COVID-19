@@ -35,6 +35,41 @@ pk.inter <- function(x) {
     else return(x)
 }
 
+## Input missing values with the next known value divided by the number of
+## adjacent missing values plus 1. The known value is replaced as well.
+pk.inter2 <- function(x) {
+    if (length(x) < 3 |
+        length(x) - length(which(x == 0)) < 3) {
+        return(x)
+    }
+    y <- x
+    idx <- which(x == 0)
+    # while there are elements that are 0
+    while (0 < length(idx)) {
+        # from first element that is 0
+        first <- idx[1]
+        idx <- idx[-1]
+
+        # find last adjacent element that is 0
+        last <- first
+        while (0 < length(idx) & idx[1] == first + 1) {
+            last <- idx[1]
+            idx <- idx[-1]
+        }
+        # and go one past that
+        last <- last + 1
+
+        # only in case this is not a series of 0's in the end
+        if (last <= length(x)) {
+            # replace 0's with an average value
+            value <- (x[last] - x[first]) / (last - first + 1)
+            for (i in first:last) {
+                y[i] <- value
+            }
+        }
+    }
+    return(y)
+}
 
 deaths <- left_join(deaths, first_deaths) %>%
     mutate(day=date-firstDeath)
@@ -47,7 +82,7 @@ deaths <- deaths %>%
 deaths <- deaths %>%
     mutate(dailyDeathsInter=ave(deaths$dailyDeaths,
                                  deaths$country, deaths$province,
-                                 FUN = pk.inter))
+                                 FUN = pk.inter2))
 
 df <- deaths %>%
     filter((country == "United Kingdom" & province == "")
