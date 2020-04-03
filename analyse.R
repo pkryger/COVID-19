@@ -8,7 +8,7 @@ deaths_raw <- read.csv("/Users/pkryger/gh/COVID-19/csse_covid_19_data/csse_covid
 
 deaths <- deaths_raw %>%
     pivot_longer(names_to="date", values_to="cumDeaths", cols=starts_with("X")) %>%
-    filter(cumDeaths != 0) %>%
+    filter(cumDeaths >= 50) %>%
     select(-(Lat:Long)) %>%
     mutate(date=as.Date(date, format="X%m.%d.%y")) %>%
     rename(country=Country.Region, province=Province.State)
