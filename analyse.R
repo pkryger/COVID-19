@@ -4,6 +4,14 @@ library(data.table)
 library(ggplot2)
 library(imputeTS)
 
+lookup_raw <- read.csv("csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv")
+
+lookup <- lookup_raw %>%
+    select(-(Lat:Long_)) %>%
+    filter(Admin2 == "") %>%
+    rename(country=Country_Region, province=Province_State, population=Population) %>%
+    mutate(population10M=population/10000000)
+
 deaths_raw <- read.csv("csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
 
 deaths <- deaths_raw %>%
@@ -84,6 +92,11 @@ deaths <- deaths %>%
                                  deaths$country, deaths$province,
                                  FUN = pk.inter2))
 
+deaths <- left_join(deaths, lookup) %>%
+    mutate(cumDeathsNorm=cumDeaths/population10M,
+           dailyDeathsNorm=dailyDeaths/population10M,
+           dailyDeathsInterNorm=dailyDeathsInter/population10M)
+
 df <- deaths %>%
     filter((country == "United Kingdom" & province == "")
            | (country == "France" & province == "")
@@ -94,10 +107,20 @@ cumDeaths <- ggplot(df, aes(x=day, y=cumDeaths, color=country)) +
     geom_point() +
     geom_line()
 
+cumDeathsNorm <- ggplot(df, aes(x=day, y=cumDeathsNorm, color=country)) +
+    geom_point() +
+    geom_line()
+
 dailyDeaths <- ggplot(df, aes(x=day, y=dailyDeaths, color=country)) +
     geom_line()
 
+dailyDeathsNorm <- ggplot(df, aes(x=day, y=dailyDeathsNorm, color=country)) +
+    geom_line()
+
 dailyDeathsInter <- ggplot(df, aes(x=day, y=dailyDeathsInter, color=country)) +
+    geom_line()
+
+dailyDeathsInterNorm <- ggplot(df, aes(x=day, y=dailyDeathsInterNorm, color=country)) +
     geom_line()
 
 cumDeathsLog10 <- cumDeaths + scale_y_log10()
@@ -110,3 +133,7 @@ ggsave("dailyDeathsInter.png", plot=dailyDeathsInter, dpi=720, width=7, height=7
 ggsave("cumDeathsLog10.png", plot=cumDeathsLog10, dpi=720, width=7, height=7)
 ggsave("dailyDeathsLog10.png", plot=dailyDeathsLog10, dpi=720, width=7, height=7)
 ggsave("dailyDeathsInterLog10.png", plot=dailyDeathsInterLog10, dpi=720, width=7, height=7)
+
+ggsave("cumDeathsNorm.png", plot=cumDeathsNorm, dpi=720, width=7, height=7)
+ggsave("dailyDeathsNorm.png", plot=dailyDeathsNorm, dpi=720, width=7, height=7)
+ggsave("dailyDeathsInterNorm.png", plot=dailyDeathsInterNorm, dpi=720, width=7, height=7)
