@@ -87,8 +87,8 @@ deaths <- deaths %>%
 df <- deaths %>%
     filter((country == "United Kingdom" & province == "")
            | (country == "France" & province == "")
-           | country %in% c("Germany", "Italy", "Spain", "US")
-           | (country == "China" & province == "Hubei"))
+           | country %in% c("Sweden", "Germany", "Italy", "Spain", "US"))
+#           | (country == "China" & province == "Hubei"))
 
 cumDeaths <- ggplot(df, aes(x=day, y=cumDeaths, color=country)) +
     geom_point() +
