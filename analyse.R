@@ -4,7 +4,7 @@ library(data.table)
 library(ggplot2)
 library(imputeTS)
 
-deaths_raw <- read.csv("/Users/pkryger/gh/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
+deaths_raw <- read.csv("csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
 
 deaths <- deaths_raw %>%
     pivot_longer(names_to="date", values_to="cumDeaths", cols=starts_with("X")) %>%
