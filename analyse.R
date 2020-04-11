@@ -112,15 +112,19 @@ cumDeathsNorm <- ggplot(df, aes(x=day, y=cumDeathsNorm, color=country)) +
     geom_line()
 
 dailyDeaths <- ggplot(df, aes(x=day, y=dailyDeaths, color=country)) +
+    geom_point() +
     geom_line()
 
 dailyDeathsNorm <- ggplot(df, aes(x=day, y=dailyDeathsNorm, color=country)) +
+    geom_point() +
     geom_line()
 
 dailyDeathsInter <- ggplot(df, aes(x=day, y=dailyDeathsInter, color=country)) +
+    geom_point() +
     geom_line()
 
 dailyDeathsInterNorm <- ggplot(df, aes(x=day, y=dailyDeathsInterNorm, color=country)) +
+    geom_point() +
     geom_line()
 
 cumDeathsLog10 <- cumDeaths + scale_y_log10()
