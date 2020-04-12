@@ -19,6 +19,7 @@ deaths <- deaths_raw %>%
     filter(cumDeaths >= 50) %>%
     select(-(Lat:Long)) %>%
     mutate(date=as.Date(date, format="X%m.%d.%y")) %>%
+    order(country, province, date) %>%
     rename(country=Country.Region, province=Province.State)
 
 first_deaths <- deaths %>%
