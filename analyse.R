@@ -19,11 +19,11 @@ deaths <- deaths_raw %>%
     filter(cumDeaths >= 50) %>%
     select(-(Lat:Long)) %>%
     mutate(date=as.Date(date, format="X%m.%d.%y")) %>%
-    order(country, province, date) %>%
-    rename(country=Country.Region, province=Province.State)
+    rename(country=Country.Region, province=Province.State) %>%
+    group_by(country, province) %>%
+    arrange(date)
 
 first_deaths <- deaths %>%
-    group_by(country, province) %>%
     summarize(firstDeath=min(date))
 
 pk.revcumsum <- function(x) {
@@ -88,10 +88,10 @@ deaths <- left_join(deaths, first_deaths) %>%
     mutate(day=date-firstDeath)
 
 deaths <- deaths %>%
-    group_by(country, province) %>%
     mutate(dailyDeaths=pk.revcumsum(cumDeaths),
            dailyDeathsInter=pk.inter2(dailyDeaths),
-           cumDeathsRatio=pk.ratio(cumDeaths))
+           cumDeathsRatio=pk.ratio(cumDeaths),
+           dailyDeathsRatio=pk.ratio(dailyDeathsInter))
 
 deaths <- left_join(deaths, lookup) %>%
     mutate(cumDeathsNorm=cumDeaths/population10M,
