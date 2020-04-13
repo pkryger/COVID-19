@@ -147,6 +147,20 @@ cumDeathsRatio <- ggplot(df %>% filter(country != "Germany"),
     facet_wrap(~country)
 ggsave("cumDeathsRatio.png", plot=cumDeathsRatio, dpi=720, width=12, height=7)
 
+dailyDeathsRatio <- ggplot(df %>% filter(country != "Germany"),
+                         aes(x=day, y=dailyDeathsRatio, color=country)) +
+    geom_point() +
+    geom_line() +
+    geom_smooth(data=df %>% filter(country != "Germany", day >= 15),
+                size=0.3,
+                colour="black",
+                linetype="dashed",
+                method=lm,
+                fullrange=TRUE) +
+    ylim(0, 4) +
+    facet_wrap(~country)
+ggsave("dailyDeathsRatio.png", plot=dailyDeathsRatio, dpi=720, width=12, height=7)
+
 ggsave("cumDeaths.png", plot=cumDeaths, dpi=720, width=7, height=7)
 ggsave("dailyDeaths.png", plot=dailyDeaths, dpi=720, width=7, height=7)
 ggsave("dailyDeathsInter.png", plot=dailyDeathsInter, dpi=720, width=7, height=7)
