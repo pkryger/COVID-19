@@ -157,7 +157,7 @@ dailyDeathsRatio <- ggplot(df %>% filter(country != "Germany"),
                 linetype="dashed",
                 method=lm,
                 fullrange=TRUE) +
-    ylim(0, 4) +
+    ylim(0, 2) +
     facet_wrap(~country)
 ggsave("dailyDeathsRatio.png", plot=dailyDeathsRatio, dpi=720, width=12, height=7)
 
