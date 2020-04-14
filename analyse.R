@@ -132,12 +132,18 @@ cumDeathsLog10 <- cumDeaths + scale_y_log10()
 dailyDeathsLog10 <- dailyDeaths + scale_y_log10()
 dailyDeathsInterLog10 <- dailyDeathsInter + scale_y_log10()
 
-
-cumDeathsRatio <- ggplot(df %>% filter(country != "Germany"),
+df <- df %>% filter(country != "Germany")
+dff <- df %>% filter((country == "France" & day >= 10) |
+                     (country == "Italy" & day >= 12) |
+                     (country == "Spain" & day >= 8) |
+                     (country == "Sweden" & day >= 13) |
+                     (country == "United Kingdom" & day >= 16) |
+                     (country == "US" & day >= 8))
+cumDeathsRatio <- ggplot(df,
                          aes(x=day, y=cumDeathsRatio, color=country)) +
     geom_point() +
     geom_line() +
-    geom_smooth(data=df %>% filter(country != "Germany", day >= 15),
+    geom_smooth(data=dff,
                 size=0.3,
                 colour="black",
                 linetype="dashed",
@@ -147,11 +153,11 @@ cumDeathsRatio <- ggplot(df %>% filter(country != "Germany"),
     facet_wrap(~country)
 ggsave("cumDeathsRatio.png", plot=cumDeathsRatio, dpi=720, width=12, height=7)
 
-dailyDeathsRatio <- ggplot(df %>% filter(country != "Germany"),
-                         aes(x=day, y=dailyDeathsRatio, color=country)) +
+dailyDeathsRatio <- ggplot(df,
+                           aes(x=day, y=dailyDeathsRatio, color=country)) +
     geom_point() +
     geom_line() +
-    geom_smooth(data=df %>% filter(country != "Germany", day >= 15),
+    geom_smooth(data=dff,
                 size=0.3,
                 colour="black",
                 linetype="dashed",
