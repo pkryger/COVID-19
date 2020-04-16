@@ -175,4 +175,4 @@ ggsave("dailyDeathsLog10.png", plot=dailyDeathsLog10, dpi=720, width=7, height=7
 ggsave("dailyDeathsInterLog10.png", plot=dailyDeathsInterLog10, dpi=720, width=7, height=7)
 ggsave("cumDeathsNorm.png", plot=cumDeathsNorm, dpi=720, width=7, height=7)
 ggsave("dailyDeathsNorm.png", plot=dailyDeathsNorm, dpi=720, width=7, height=7)
-ggsave("dailyDeathsInterNorm.png", plot=dailyDeathsInterNorm, dpi=720, width=7, height=7
+ggsave("dailyDeathsInterNorm.png", plot=dailyDeathsInterNorm, dpi=720, width=7, height=7)
