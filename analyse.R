@@ -27,7 +27,9 @@ first_deaths <- deaths %>%
     summarize(firstDeath=min(date))
 
 pk.revcumsum <- function(x) {
-    return(x - lag(x, default=x[1]))
+    x <- x - lag(x, default=x[1])
+    x[x < 0] = 0
+    return(x)
 }
 
 pk.ratio <- function(x) {
