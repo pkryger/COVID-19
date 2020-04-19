@@ -85,7 +85,6 @@ pk.inter2 <- function(x) {
     return(y)
 }
 
-
 deaths <- left_join(deaths, first_deaths) %>%
     mutate(day=date-firstDeath)
 
@@ -103,7 +102,7 @@ deaths <- left_join(deaths, lookup) %>%
 df <- deaths %>%
     filter((country == "United Kingdom" & province == "")
            | (country == "France" & province == "")
-           | country %in% c("Sweden", "Germany", "Italy", "Spain", "US"))
+           | country %in% c("Sweden", "Italy", "Spain", "US"))
 #           | (country == "China" & province == "Hubei"))
 
 cumDeaths <- ggplot(df, aes(x=day, y=cumDeaths, color=country)) +
@@ -130,17 +129,33 @@ dailyDeathsInterNorm <- ggplot(df, aes(x=day, y=dailyDeathsInterNorm, color=coun
     geom_point() +
     geom_line()
 
+
+ggsave("cumDeaths.png", plot=cumDeaths, dpi=720, width=7, height=7)
+ggsave("dailyDeaths.png", plot=dailyDeaths, dpi=720, width=7, height=7)
+ggsave("dailyDeathsInter.png", plot=dailyDeathsInter, dpi=720, width=7, height=7)
+ggsave("cumDeathsNorm.png", plot=cumDeathsNorm, dpi=720, width=7, height=7)
+ggsave("dailyDeathsNorm.png", plot=dailyDeathsNorm, dpi=720, width=7, height=7)
+ggsave("dailyDeathsInterNorm.png", plot=dailyDeathsInterNorm, dpi=720, width=7, height=7)
+
+
+## Log10 scale
+
 cumDeathsLog10 <- cumDeaths + scale_y_log10()
 dailyDeathsLog10 <- dailyDeaths + scale_y_log10()
 dailyDeathsInterLog10 <- dailyDeathsInter + scale_y_log10()
+ggsave("cumDeathsLog10.png", plot=cumDeathsLog10, dpi=720, width=7, height=7)
+ggsave("dailyDeathsLog10.png", plot=dailyDeathsLog10, dpi=720, width=7, height=7)
+ggsave("dailyDeathsInterLog10.png", plot=dailyDeathsInterLog10, dpi=720, width=7, height=7)
 
-df <- df %>% filter(country != "Germany")
+# Smoothing
+
 dff <- df %>% filter((country == "France" & day >= 10) |
                      (country == "Italy" & day >= 12) |
                      (country == "Spain" & day >= 8) |
                      (country == "Sweden" & day >= 13) |
                      (country == "United Kingdom" & day >= 16) |
                      (country == "US" & day >= 8))
+
 cumDeathsRatio <- ggplot(df,
                          aes(x=day, y=cumDeathsRatio, color=country)) +
     geom_point() +
@@ -169,12 +184,3 @@ dailyDeathsRatio <- ggplot(df,
     facet_wrap(~country)
 ggsave("dailyDeathsRatio.png", plot=dailyDeathsRatio, dpi=720, width=12, height=7)
 
-ggsave("cumDeaths.png", plot=cumDeaths, dpi=720, width=7, height=7)
-ggsave("dailyDeaths.png", plot=dailyDeaths, dpi=720, width=7, height=7)
-ggsave("dailyDeathsInter.png", plot=dailyDeathsInter, dpi=720, width=7, height=7)
-ggsave("cumDeathsLog10.png", plot=cumDeathsLog10, dpi=720, width=7, height=7)
-ggsave("dailyDeathsLog10.png", plot=dailyDeathsLog10, dpi=720, width=7, height=7)
-ggsave("dailyDeathsInterLog10.png", plot=dailyDeathsInterLog10, dpi=720, width=7, height=7)
-ggsave("cumDeathsNorm.png", plot=cumDeathsNorm, dpi=720, width=7, height=7)
-ggsave("dailyDeathsNorm.png", plot=dailyDeathsNorm, dpi=720, width=7, height=7)
-ggsave("dailyDeathsInterNorm.png", plot=dailyDeathsInterNorm, dpi=720, width=7, height=7)
