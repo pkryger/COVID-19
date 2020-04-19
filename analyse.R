@@ -184,3 +184,10 @@ dailyDeathsRatio <- ggplot(df,
     facet_wrap(~country)
 ggsave("dailyDeathsRatio.png", plot=dailyDeathsRatio, dpi=720, width=12, height=7)
 
+# Modelling
+
+models <- left_join(dff %>% do(model = lm(cumDeathsRatio ~ day, .)),
+                    dff %>% summarize(nextDay = max(day) + 1))
+
+models <- dff %>% do(model = lm(cumDeathsRatio ~ day, .),
+                     nextDays = seq(max(.$day) + 1, max(.$day) + 8))
