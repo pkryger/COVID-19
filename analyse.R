@@ -149,12 +149,7 @@ ggsave("dailyDeathsInterLog10.png", plot=dailyDeathsInterLog10, dpi=720, width=7
 
 # Smoothing
 
-dff <- df %>% filter((country == "France" & day >= 10) |
-                     (country == "Italy" & day >= 12) |
-                     (country == "Spain" & day >= 8) |
-                     (country == "Sweden" & day >= 13) |
-                     (country == "United Kingdom" & day >= 16) |
-                     (country == "US" & day >= 8))
+dff <- df %>% filter(day > max(day) - 14)
 
 cumDeathsRatio <- ggplot(df,
                          aes(x=day, y=cumDeathsRatio, color=country)) +
@@ -166,7 +161,7 @@ cumDeathsRatio <- ggplot(df,
                 linetype="dashed",
                 method=lm,
                 fullrange=TRUE) +
-    ylim(1, 2) +
+    ylim(1, 1.4) +
     facet_wrap(~country)
 ggsave("cumDeathsRatio.png", plot=cumDeathsRatio, dpi=720, width=12, height=7)
 
