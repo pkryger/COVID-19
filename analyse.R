@@ -180,9 +180,10 @@ dailyDeathsRatio <- ggplot(df,
 ggsave("dailyDeathsRatio.png", plot=dailyDeathsRatio, dpi=720, width=12, height=7)
 
 # Modelling
+# see also: https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
+models <- dff %>% do(model = lm(cumDeathsRatio ~ as.integer(day), .),
+                     day = seq(max(.$day) + 1, max(.$day) + 8))
 
-models <- left_join(dff %>% do(model = lm(cumDeathsRatio ~ day, .)),
-                    dff %>% summarize(nextDay = max(day) + 1))
-
-models <- dff %>% do(model = lm(cumDeathsRatio ~ day, .),
-                     nextDays = seq(max(.$day) + 1, max(.$day) + 8))
+predictions <- models %>% do(data.frame(country=.$country,
+                                        day = .$day,
+                                        pred = predict(.$model, newdata=.)))
