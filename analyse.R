@@ -162,6 +162,7 @@ cumDeathsRatio <- ggplot(df,
                 method=lm,
                 fullrange=TRUE) +
     ylim(1, 1.4) +
+    geom_hline(yintercept=1.055, colour="red", linetype="dashed") +
     facet_wrap(~country)
 ggsave("cumDeathsRatio.png", plot=cumDeathsRatio, dpi=720, width=12, height=7)
 
