@@ -86,7 +86,7 @@ pk.inter2 <- function(x) {
 }
 
 deaths <- left_join(deaths, first_deaths) %>%
-    mutate(day=date-firstDeath)
+    mutate(day=as.integer(date-firstDeath))
 
 deaths <- deaths %>%
     mutate(dailyDeaths=pk.revcumsum(cumDeaths),
@@ -182,9 +182,23 @@ ggsave("dailyDeathsRatio.png", plot=dailyDeathsRatio, dpi=720, width=12, height=
 
 # Modelling
 # see also: https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
-models <- dff %>% do(model = lm(cumDeathsRatio ~ as.integer(day), .),
-                     day = seq(max(.$day) + 1, max(.$day) + 8))
+models <- dff %>% do(model = lm(cumDeathsRatio ~ day, .),
+                     day = seq(max(.$day) - 14, max(dff$day) + 8))
 
-predictions <- models %>% do(data.frame(country=.$country,
+predictions <- models %>% do(data.frame(country = .$country,
+                                        province = .$province,
                                         day = .$day,
                                         pred = predict(.$model, newdata=.)))
+predictions <- full_join(df, predictions)
+
+cumDeathsRatioModel <- ggplot(predictions,
+                              aes(x=day, y=cumDeathsRatio, color=country)) +
+    geom_point() +
+    geom_line() +
+    geom_line(mapping=aes(x=day, y=pred),
+              size=0.3,
+              linetype="dashed") +
+    ylim(1, 1.4) +
+    geom_hline(yintercept=1.055, colour="red", linetype="dashed") +
+    facet_wrap(~country)
+ggsave("cumDeathsRatioModel.png", plot=cumDeathsRatioModel, dpi=720, width=12, height=7)
