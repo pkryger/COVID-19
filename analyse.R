@@ -194,6 +194,6 @@ cumDeathsRatioModel <- ggplot(predictions,
               size=0.3,
               linetype="dashed") +
     ylim(1, 1.4) +
-    geom_hline(yintercept=1.055, colour="red", linetype="dashed") +
+    geom_hline(yintercept=1.055, colour="black", size=0.3, linetype="dashed") +
     facet_wrap(~country)
 ggsave("cumDeathsRatioModel.png", plot=cumDeathsRatioModel, dpi=720, width=12, height=7)
