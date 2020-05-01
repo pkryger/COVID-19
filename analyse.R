@@ -90,14 +90,14 @@ deaths <- left_join(deaths, first_deaths) %>%
 
 deaths <- deaths %>%
     mutate(dailyDeaths=pk.revcumsum(cumDeaths),
-           dailyDeathsInter=pk.inter2(dailyDeaths),
+           dailyDeaths=pk.inter2(dailyDeaths),
            cumDeathsRatio=pk.ratio(cumDeaths),
-           dailyDeathsRatio=pk.ratio(dailyDeathsInter))
+           dailyDeathsRatio=pk.ratio(dailyDeaths))
 
 deaths <- left_join(deaths, lookup) %>%
     mutate(cumDeathsNorm=cumDeaths/population10M,
            dailyDeathsNorm=dailyDeaths/population10M,
-           dailyDeathsInterNorm=dailyDeathsInter/population10M)
+           dailyDeathsNorm=dailyDeaths/population10M)
 
 df <- deaths %>%
     filter((country == "United Kingdom" & province == "")
@@ -121,31 +121,24 @@ dailyDeathsNorm <- ggplot(df, aes(x=day, y=dailyDeathsNorm, color=country)) +
     geom_point() +
     geom_line()
 
-dailyDeathsInter <- ggplot(df, aes(x=day, y=dailyDeathsInter, color=country)) +
-    geom_point() +
-    geom_line()
-
-dailyDeathsInterNorm <- ggplot(df, aes(x=day, y=dailyDeathsInterNorm, color=country)) +
-    geom_point() +
-    geom_line()
-
 
 ggsave("cumDeaths.png", plot=cumDeaths, dpi=720, width=7, height=7)
-ggsave("dailyDeaths.png", plot=dailyDeaths, dpi=720, width=7, height=7)
-ggsave("dailyDeathsInter.png", plot=dailyDeathsInter, dpi=720, width=7, height=7)
 ggsave("cumDeathsNorm.png", plot=cumDeathsNorm, dpi=720, width=7, height=7)
+ggsave("dailyDeaths.png", plot=dailyDeaths, dpi=720, width=7, height=7)
 ggsave("dailyDeathsNorm.png", plot=dailyDeathsNorm, dpi=720, width=7, height=7)
-ggsave("dailyDeathsInterNorm.png", plot=dailyDeathsInterNorm, dpi=720, width=7, height=7)
+
+ggsave("dailyDeathsFct.png", plot=dailyDeaths + facet_wrap(~country),
+       dpi=720, width=12, height=7)
+ggsave("dailyDeathsNormFct.png", plot=dailyDeathsNorm + facet_wrap(~country),
+       dpi=720, width=12, height=7)
 
 
 ## Log10 scale
 
 cumDeathsLog10 <- cumDeaths + scale_y_log10()
 dailyDeathsLog10 <- dailyDeaths + scale_y_log10()
-dailyDeathsInterLog10 <- dailyDeathsInter + scale_y_log10()
 ggsave("cumDeathsLog10.png", plot=cumDeathsLog10, dpi=720, width=7, height=7)
 ggsave("dailyDeathsLog10.png", plot=dailyDeathsLog10, dpi=720, width=7, height=7)
-ggsave("dailyDeathsInterLog10.png", plot=dailyDeathsInterLog10, dpi=720, width=7, height=7)
 
 # Smoothing
 
