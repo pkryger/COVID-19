@@ -175,8 +175,10 @@ ggsave("dailyDeathsRatio.png", plot=dailyDeathsRatio, dpi=720, width=12, height=
 
 # Modelling
 # see also: https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
-models <- dff %>% do(model = lm(cumDeathsRatio ~ day, .),
-                     day = seq(max(.$day) - 14, max(dff$day) + 8))
+models <- df %>%
+    filter(day > max(day) - 14) %>%
+    do(model = lm(cumDeathsRatio ~ day, .),
+       day = seq(.$day, max(df$day) + 8))
 
 predictions <- models %>% do(data.frame(country = .$country,
                                         province = .$province,
