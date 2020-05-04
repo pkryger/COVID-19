@@ -178,7 +178,7 @@ ggsave("dailyDeathsRatio.png", plot=dailyDeathsRatio, dpi=720, width=12, height=
 models <- df %>%
     filter(day > max(day) - 14) %>%
     do(model = lm(cumDeathsRatio ~ day, .),
-       day = seq(.$day, max(df$day) + 8))
+       day = seq(min(.$day), max(df$day) + 8))
 
 predictions <- models %>% do(data.frame(country = .$country,
                                         province = .$province,
