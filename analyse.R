@@ -23,6 +23,7 @@ deaths <- deaths_raw %>%
     arrange(date)
 
 first_deaths <- deaths %>%
+    filter(cumDeaths >= 50) %>%
     summarize(firstDeath=min(date))
 
 pk.revcumsum <- function(x) {
@@ -84,22 +85,21 @@ pk.inter2 <- function(x) {
     return(y)
 }
 
-deaths <- left_join(deaths, first_deaths) %>%
-    mutate(day=as.integer(date-firstDeath))
+df <- left_join(deaths %>% filter(cumDeaths >= 50),
+              first_deaths) %>% mutate(day=as.integer(date-firstDeath))
 
-deaths <- deaths %>%
+df <- df %>%
     mutate(dailyDeaths=pk.revcumsum(cumDeaths),
            dailyDeaths=pk.inter2(dailyDeaths),
            cumDeathsRatio=pk.ratio(cumDeaths),
            dailyDeathsRatio=pk.ratio(dailyDeaths))
 
-deaths <- left_join(deaths, lookup) %>%
+df <- left_join(df, lookup) %>%
     mutate(cumDeathsNorm=cumDeaths/population10M,
            dailyDeathsNorm=dailyDeaths/population10M,
            dailyDeathsNorm=dailyDeaths/population10M)
 
-df <- deaths %>%
-    filter(cumDeaths >= 50) %>%
+df <- df %>%
     filter((country == "United Kingdom" & province == "")
            | (country == "France" & province == "")
            | country %in% c("Sweden", "Italy", "Spain", "US"))
