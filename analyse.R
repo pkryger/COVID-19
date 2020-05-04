@@ -16,7 +16,6 @@ deaths_raw <- read.csv("csse_covid_19_data/csse_covid_19_time_series/time_series
 
 deaths <- deaths_raw %>%
     pivot_longer(names_to="date", values_to="cumDeaths", cols=starts_with("X")) %>%
-    filter(cumDeaths >= 50) %>%
     select(-(Lat:Long)) %>%
     mutate(date=as.Date(date, format="X%m.%d.%y")) %>%
     rename(country=Country.Region, province=Province.State) %>%
@@ -100,6 +99,7 @@ deaths <- left_join(deaths, lookup) %>%
            dailyDeathsNorm=dailyDeaths/population10M)
 
 df <- deaths %>%
+    filter(cumDeaths >= 50) %>%
     filter((country == "United Kingdom" & province == "")
            | (country == "France" & province == "")
            | country %in% c("Sweden", "Italy", "Spain", "US"))
@@ -197,3 +197,24 @@ cumDeathsRatioModel <- ggplot(predictions,
     geom_hline(yintercept=1.055, colour="black", size=0.3, linetype="dashed") +
     facet_wrap(~country)
 ggsave("cumDeathsRatioModel.png", plot=cumDeathsRatioModel, dpi=720, width=12, height=7)
+
+
+# Death ratio
+# Province/State,Country/Region,Lat,Long
+confirmed_raw <- read.csv("csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
+confirmed <- confirmed_raw %>%
+    pivot_longer(names_to="date", values_to="cumConfirmed", cols=starts_with("X")) %>%
+    select(-(Lat:Long)) %>%
+    mutate(date=as.Date(date, format="X%m.%d.%y")) %>%
+    rename(country=Country.Region, province=Province.State) %>%
+    group_by(country, province) %>%
+    arrange(date)
+
+df <- full_join(deaths %>% group_by(date) %>% summarize(deaths=sum(cumDeaths)),
+                confirmed %>% group_by(date) %>% summarize(confirmed=sum(cumConfirmed)))
+
+deathsRatio <- ggplot(df, aes(x=date, y=deaths/confirmed)) +
+    geom_point() +
+    geom_line()
+
+ggsave("deathsRatio.png", plot=deathsRatio, dpi=720, width=7, height=7)
