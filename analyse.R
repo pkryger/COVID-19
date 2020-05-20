@@ -2,6 +2,7 @@ library(tidyverse)
 library(data.table)
 library(ggplot2)
 library(imputeTS)
+library(zoo)
 
 lookup_raw <- read.csv("csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv")
 
@@ -107,14 +108,16 @@ df <- df %>%
         dailyDeaths = pk_revcumsum(cumDeaths),
         dailyDeaths = pk_inter2(dailyDeaths),
         cumDeathsRatio = pk_ratio(cumDeaths),
-        dailyDeathsRatio = pk_ratio(dailyDeaths)
+        dailyDeathsRatio = pk_ratio(dailyDeaths),
+        rollmeanDeaths = rollmeanr(dailyDeaths, 7, fill = NA)
     )
 
 df <- left_join(df, lookup) %>%
     mutate(
         cumDeathsNorm = cumDeaths / population10M,
         dailyDeathsNorm = dailyDeaths / population10M,
-        dailyDeathsNorm = dailyDeaths / population10M
+        dailyDeathsNorm = dailyDeaths / population10M,
+        rollmeanDeathsNorm = rollmeanr(dailyDeathsNorm, 7, fill = NA)
     )
 
 df <- df %>%
@@ -153,13 +156,23 @@ ggsave("dailyDeathsNorm.png",
        plot = dailyDeathsNorm, dpi = 720, width = 7, height = 7
 )
 
+
+dailyDeathsFct <- ggplot(data = df, mapping = aes(x = day)) +
+    geom_col(mapping = aes(y = dailyDeaths, fill = country)) +
+    geom_line(mapping = aes(y = rollmeanDeaths)) +
+    facet_wrap(~country)
+
+dailyDeathsNormFct <- ggplot(data = df, mapping = aes(x = day)) +
+    geom_col(mapping = aes(y = dailyDeathsNorm, fill = country)) +
+    geom_line(mapping = aes(y = rollmeanDeathsNorm)) +
+    facet_wrap(~country)
+
 ggsave("dailyDeathsFct.png",
-    plot = dailyDeaths + facet_wrap(~country),
-    dpi = 720, width = 12, height = 7
-)
+       plot = dailyDeathsFct, dpi = 720, width = 12, height = 7
+       )
+
 ggsave("dailyDeathsNormFct.png",
-    plot = dailyDeathsNorm + facet_wrap(~country),
-    dpi = 720, width = 12, height = 7
+       plot = dailyDeathsNormFct, dpi = 720, width = 12, height = 7
 )
 
 
