@@ -96,7 +96,7 @@ pk_get_clean_df <- function(path) {
     return(df)
 }
 
-pk_enrich_and_filter_df <- function(df, cutoff=50) {
+pk_enrich_and_filter_df <- function(df, cutoff) {
     firsts <- df %>%
         filter(cumulative >= cutoff) %>%
         summarize(first = min(date))
@@ -168,69 +168,78 @@ pk_generate_charts <- function(df, name) {
     return(df)
 }
 
+pk_model_cumulativeRatio <- function(df, name) {
+    # see also: https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
+    models <- df %>%
+        filter(day > max(day) - 14) %>%
+        do(
+            model = lm(cumulativeRatio ~ day, .),
+            day = seq(min(.$day), max(df$day) + 8)
+        )
+
+    predictions <- models %>% do(data.frame(
+                                  country = .$country,
+                                  province = .$province,
+                                  day = .$day,
+                                  pred = predict(.$model, newdata = .)
+                              ))
+    predictions <- full_join(df, predictions)
+
+    cumulativeRatioModelPlot <- ggplot(
+        predictions,
+        aes(x = day, y = cumulativeRatio, color = country)
+    ) +
+        geom_point() +
+        geom_line() +
+        geom_line(
+            mapping = aes(x = day, y = pred),
+            size = 0.3,
+            linetype = "dashed"
+        ) +
+        ylim(1, 1.4) +
+        geom_hline(
+            yintercept = 1.055,
+            colour = "black",
+            size = 0.3,
+            linetype = "dashed"
+        ) +
+        facet_wrap(~country)
+    ggsave(paste("cum", name, "RatioModel.png", sep=""),
+           plot = cumulativeRatioModelPlot, dpi = 720, width = 12, height = 7
+           )
+    return(df)
+}
+
 deaths <- pk_get_clean_df(paste("csse_covid_19_data",
                                 "csse_covid_19_time_series",
                                 "time_series_covid19_deaths_global.csv",
-                                sep="/")) %>%
-    pk_enrich_and_filter_df() %>%
-    pk_generate_charts(name="Deaths")
+                                sep="/"))
+deaths %>%
+    pk_enrich_and_filter_df(cutoff=50) %>%
+    pk_generate_charts(name="Deaths") %>%
+    pk_model_cumulativeRatio(name="Deaths")
 
-df <- deaths
-
-# Modelling
-# see also: https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
-models <- df %>%
-    filter(day > max(day) - 14) %>%
-    do(
-        model = lm(cumulativeRatio ~ day, .),
-        day = seq(min(.$day), max(df$day) + 8)
-    )
-
-predictions <- models %>% do(data.frame(
-    country = .$country,
-    province = .$province,
-    day = .$day,
-    pred = predict(.$model, newdata = .)
-))
-predictions <- full_join(df, predictions)
-
-cumDeathsRatioModel <- ggplot(
-    predictions,
-    aes(x = day, y = cumulativeRatio, color = country)
-) +
-    geom_point() +
-    geom_line() +
-    geom_line(
-        mapping = aes(x = day, y = pred),
-        size = 0.3,
-        linetype = "dashed"
-    ) +
-    ylim(1, 1.4) +
-    geom_hline(
-        yintercept = 1.055,
-        colour = "black",
-        size = 0.3,
-        linetype = "dashed"
-    ) +
-    facet_wrap(~country)
-ggsave("cumDeathsRatioModel.png",
-       plot = cumDeathsRatioModel, dpi = 720, width = 12, height = 7
-)
+# Province/State,Country/Region,Lat,Long
+confirmed <- pk_get_clean_df(paste("csse_covid_19_data",
+                                   "csse_covid_19_time_series",
+                                   "time_series_covid19_confirmed_global.csv",
+                                   sep="/"))
+confirmed %>%
+    pk_enrich_and_filter_df(cutoff=100) %>%
+    pk_generate_charts(name="Confirmed") %>%
+    pk_model_cumulativeRatio(name="Confirmed")
 
 
 # Death ratio
-# Province/State,Country/Region,Lat,Long
-confirmed <- pk_get_clean_df("csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
-
 df <- full_join(
     deaths %>% group_by(date) %>% summarize(deaths = sum(cumulative)),
     confirmed %>% group_by(date) %>% summarize(confirmed = sum(cumulative))
 )
 
-deathsRatio <- ggplot(df, aes(x = date, y = deaths / confirmed)) +
+deathsRatioPlot <- ggplot(df, aes(x = date, y = deaths / confirmed)) +
     geom_point() +
     geom_line()
 
 ggsave("deathsRatio.png",
-       plot = deathsRatio, dpi = 720, width = 7, height = 7
+       plot = deathsRatioPlot, dpi = 720, width = 7, height = 7
 )
