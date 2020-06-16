@@ -77,7 +77,7 @@ lookup <- lookup_raw %>%
         province = Province_State,
         population = Population
     ) %>%
-    mutate(population10M = population / 10000000)
+    mutate(population1M = population / 1000000)
 
 pk_get_clean_df <- function(path) {
     raw <- read.csv(path)
@@ -120,9 +120,9 @@ df <- df %>%
 
 df <- left_join(df, lookup) %>%
     mutate(
-        cumDeathsNorm = cumulative / population10M,
-        dailyDeathsNorm = dailyDeaths / population10M,
-        dailyDeathsNorm = dailyDeaths / population10M,
+        cumDeathsNorm = cumulative / population1M,
+        dailyDeathsNorm = dailyDeaths / population1M,
+        dailyDeathsNorm = dailyDeaths / population1M,
         rollmeanDeathsNorm = rollmeanr(dailyDeathsNorm, 7, fill = NA)
     )
 
