@@ -96,13 +96,13 @@ pk_get_clean_df <- function(path) {
     return(df)
 }
 
-pk_enrich_and_filter_df <- function(df) {
+pk_enrich_and_filter_df <- function(df, cutoff=50) {
     firsts <- df %>%
-        filter(cumulative >= 50) %>%
+        filter(cumulative >= cutoff) %>%
         summarize(first = min(date))
 
     df <- left_join(
-        df %>% filter(cumulative >= 50),
+        df %>% filter(cumulative >= cutoff),
         firsts
     ) %>%
         mutate(day = as.integer(date - first))
