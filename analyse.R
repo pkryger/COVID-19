@@ -4,36 +4,6 @@ library(ggplot2)
 library(imputeTS)
 library(zoo)
 
-lookup_raw <- read.csv("csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv")
-
-lookup <- lookup_raw %>%
-    filter(Admin2 == "") %>%
-    select(c(Country_Region, Province_State, Population)) %>%
-    rename(
-        country = Country_Region,
-        province = Province_State,
-        population = Population
-    ) %>%
-    mutate(population10M = population / 10000000)
-
-deaths_raw <- read.csv("csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
-
-deaths <- deaths_raw %>%
-    pivot_longer(
-        names_to = "date",
-        values_to = "cumDeaths",
-        cols = starts_with("X")
-    ) %>%
-    select(-(Lat:Long)) %>%
-    mutate(date = as.Date(date, format = "X%m.%d.%y")) %>%
-    rename(country = Country.Region, province = Province.State) %>%
-    group_by(country, province) %>%
-    arrange(date)
-
-first_deaths <- deaths %>%
-    filter(cumDeaths >= 50) %>%
-    summarize(firstDeath = min(date))
-
 pk_revcumsum <- function(x) {
     x <- x - lag(x, default = x[1])
     x[x < 0] <- 0
@@ -97,24 +67,60 @@ pk_inter2 <- function(x) {
     return(y)
 }
 
+lookup_raw <- read.csv("csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv")
+
+lookup <- lookup_raw %>%
+    filter(Admin2 == "") %>%
+    select(c(Country_Region, Province_State, Population)) %>%
+    rename(
+        country = Country_Region,
+        province = Province_State,
+        population = Population
+    ) %>%
+    mutate(population10M = population / 10000000)
+
+pk_get_clean_df <- function(path) {
+    raw <- read.csv(path)
+
+    df <- raw %>%
+        pivot_longer(
+            names_to = "date",
+            values_to = "cumulative",
+            cols = starts_with("X")
+        ) %>%
+        select(-(Lat:Long)) %>%
+        mutate(date = as.Date(date, format = "X%m.%d.%y")) %>%
+        rename(country = Country.Region, province = Province.State) %>%
+        group_by(country, province) %>%
+        arrange(date)
+    return(df)
+}
+
+deaths <- pk_get_clean_df("csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
+
+first_deaths <- deaths %>%
+    filter(cumulative >= 50) %>%
+    summarize(firstDeath = min(date))
+
+
 df <- left_join(
-    deaths %>% filter(cumDeaths >= 50),
+    deaths %>% filter(cumulative >= 50),
     first_deaths
 ) %>%
     mutate(day = as.integer(date - firstDeath))
 
 df <- df %>%
     mutate(
-        dailyDeaths = pk_revcumsum(cumDeaths),
+        dailyDeaths = pk_revcumsum(cumulative),
         dailyDeaths = pk_inter2(dailyDeaths),
-        cumDeathsRatio = pk_ratio(cumDeaths),
+        cumDeathsRatio = pk_ratio(cumulative),
         dailyDeathsRatio = pk_ratio(dailyDeaths),
         rollmeanDeaths = rollmeanr(dailyDeaths, 7, fill = NA)
     )
 
 df <- left_join(df, lookup) %>%
     mutate(
-        cumDeathsNorm = cumDeaths / population10M,
+        cumDeathsNorm = cumulative / population10M,
         dailyDeathsNorm = dailyDeaths / population10M,
         dailyDeathsNorm = dailyDeaths / population10M,
         rollmeanDeathsNorm = rollmeanr(dailyDeathsNorm, 7, fill = NA)
@@ -126,7 +132,7 @@ df <- df %>%
            | country %in% c("Sweden", "Italy", "Spain", "US"))
 #   | (country == "China" & province == "Hubei"))
 
-cumDeaths <- ggplot(df, aes(x = day, y = cumDeaths, color = country)) +
+cumDeaths <- ggplot(df, aes(x = day, y = cumulative, color = country)) +
     geom_point() +
     geom_line()
 
@@ -215,22 +221,11 @@ ggsave("cumDeathsRatioModel.png",
 
 # Death ratio
 # Province/State,Country/Region,Lat,Long
-confirmed_raw <- read.csv("csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
-confirmed <- confirmed_raw %>%
-    pivot_longer(
-        names_to = "date",
-        values_to = "cumConfirmed",
-        cols = starts_with("X")
-    ) %>%
-    select(-(Lat:Long)) %>%
-    mutate(date = as.Date(date, format = "X%m.%d.%y")) %>%
-    rename(country = Country.Region, province = Province.State) %>%
-    group_by(country, province) %>%
-    arrange(date)
+confirmed <- pk_get_clean_df("csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
 
 df <- full_join(
-    deaths %>% group_by(date) %>% summarize(deaths = sum(cumDeaths)),
-    confirmed %>% group_by(date) %>% summarize(confirmed = sum(cumConfirmed))
+    deaths %>% group_by(date) %>% summarize(deaths = sum(cumulative)),
+    confirmed %>% group_by(date) %>% summarize(confirmed = sum(cumulative))
 )
 
 deathsRatio <- ggplot(df, aes(x = date, y = deaths / confirmed)) +
