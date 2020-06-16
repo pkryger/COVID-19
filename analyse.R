@@ -7,8 +7,8 @@ library(zoo)
 lookup_raw <- read.csv("csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv")
 
 lookup <- lookup_raw %>%
-    select(-(Lat:Long_)) %>%
     filter(Admin2 == "") %>%
+    select(c(Country_Region, Province_State, Population)) %>%
     rename(
         country = Country_Region,
         province = Province_State,
