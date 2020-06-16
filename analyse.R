@@ -130,54 +130,52 @@ pk_enrich_and_filter_df <- function(df, cutoff=50) {
     return(df)
 }
 
-deaths <- pk_get_clean_df("csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
-df <- pk_enrich_and_filter_df(deaths)
+pk_generate_charts <- function(df, name) {
+    cumulativePlot <- ggplot(df, aes(x = day, y = cumulative, color = country)) +
+        geom_point() +
+        geom_line()
+    ggsave(paste("cum", name, ".png", sep=""),
+           plot = cumulativePlot, dpi = 720, width = 7, height = 7
+           )
 
-cumDeaths <- ggplot(df, aes(x = day, y = cumulative, color = country)) +
-    geom_point() +
-    geom_line()
+    cumulativeNormPlot <- ggplot(df, aes(x = day, y = cumulativeNorm, color = country)) +
+        geom_point() +
+        geom_line()
+    ggsave(paste("cum", name, "Norm.png", sep=""),
+           plot = cumulativeNormPlot, dpi = 720, width = 7, height = 7
+           )
 
-cumDeathsNorm <- ggplot(df, aes(x = day, y = cumulativeNorm, color = country)) +
-    geom_point() +
-    geom_line()
+    dailyFctPlot <- ggplot(data = df, mapping = aes(x = day)) +
+        geom_col(mapping = aes(y = daily, fill = country)) +
+        geom_line(mapping = aes(y = rollmean)) +
+        facet_wrap(~country)
+    ggsave(paste("daily", name, "Fct.png", sep=""),
+           plot = dailyFctPlot, dpi = 720, width = 12, height = 7
+           )
 
+    dailyNormFctPlot <- ggplot(data = df, mapping = aes(x = day)) +
+        geom_col(mapping = aes(y = dailyNorm, fill = country)) +
+        geom_line(mapping = aes(y = rollmeanNorm)) +
+        facet_wrap(~country)
+    ggsave(paste("daily", name, "NormFct.png", sep=""),
+           plot = dailyNormFctPlot, dpi = 720, width = 12, height = 7
+           )
 
-ggsave("cumDeaths.png",
-       plot = cumDeaths, dpi = 720, width = 7, height = 7
-)
-ggsave("cumDeathsNorm.png",
-        plot = cumDeathsNorm, dpi = 720, width = 7, height = 7
-)
+    cumulativeLog10Plot <- cumulativePlot + scale_y_log10()
+    ggsave(paste("cum", name, "Log10.png", sep=""),
+           plot = cumulativeLog10Plot, dpi = 720, width = 7, height = 7
+           )
+    return(df)
+}
 
+deaths <- pk_get_clean_df(paste("csse_covid_19_data",
+                                "csse_covid_19_time_series",
+                                "time_series_covid19_deaths_global.csv",
+                                sep="/")) %>%
+    pk_enrich_and_filter_df() %>%
+    pk_generate_charts(name="Deaths")
 
-dailyDeathsFct <- ggplot(data = df, mapping = aes(x = day)) +
-    geom_col(mapping = aes(y = daily, fill = country)) +
-    geom_line(mapping = aes(y = rollmean)) +
-    facet_wrap(~country)
-
-dailyDeathsNormFct <- ggplot(data = df, mapping = aes(x = day)) +
-    geom_col(mapping = aes(y = dailyNorm, fill = country)) +
-    geom_line(mapping = aes(y = rollmeanNorm)) +
-    facet_wrap(~country)
-
-ggsave("dailyDeathsFct.png",
-       plot = dailyDeathsFct, dpi = 720, width = 12, height = 7
-       )
-
-ggsave("dailyDeathsNormFct.png",
-       plot = dailyDeathsNormFct, dpi = 720, width = 12, height = 7
-)
-
-
-## Log10 scale
-
-cumDeathsLog10 <- cumDeaths + scale_y_log10()
-ggsave("cumDeathsLog10.png",
-       plot = cumDeathsLog10, dpi = 720, width = 7, height = 7
-)
-
-
-dff <- df %>% filter(day > max(day) - 14)
+df <- deaths
 
 # Modelling
 # see also: https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
