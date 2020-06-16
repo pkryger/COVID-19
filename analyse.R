@@ -134,26 +134,12 @@ cumDeathsNorm <- ggplot(df, aes(x = day, y = cumDeathsNorm, color = country)) +
     geom_point() +
     geom_line()
 
-dailyDeaths <- ggplot(df, aes(x = day, y = dailyDeaths, color = country)) +
-    geom_point() +
-    geom_line()
-
-dailyDeathsNorm <- ggplot(df, aes(x = day, y = dailyDeathsNorm, color = country)) +
-    geom_point() +
-    geom_line()
-
 
 ggsave("cumDeaths.png",
        plot = cumDeaths, dpi = 720, width = 7, height = 7
 )
 ggsave("cumDeathsNorm.png",
         plot = cumDeathsNorm, dpi = 720, width = 7, height = 7
-)
-ggsave("dailyDeaths.png",
-       plot = dailyDeaths, dpi = 720, width = 7, height = 7
-)
-ggsave("dailyDeathsNorm.png",
-       plot = dailyDeathsNorm, dpi = 720, width = 7, height = 7
 )
 
 
@@ -179,58 +165,12 @@ ggsave("dailyDeathsNormFct.png",
 ## Log10 scale
 
 cumDeathsLog10 <- cumDeaths + scale_y_log10()
-dailyDeathsLog10 <- dailyDeaths + scale_y_log10()
 ggsave("cumDeathsLog10.png",
        plot = cumDeathsLog10, dpi = 720, width = 7, height = 7
 )
-ggsave("dailyDeathsLog10.png",
-       plot = dailyDeathsLog10, dpi = 720, width = 7, height = 7
-)
 
-# Smoothing
 
 dff <- df %>% filter(day > max(day) - 14)
-
-cumDeathsRatio <- ggplot(
-    df,
-    aes(x = day, y = cumDeathsRatio, color = country)
-) +
-    geom_point() +
-    geom_line() +
-    geom_smooth(
-        data = dff,
-        size = 0.3,
-        colour = "black",
-        linetype = "dashed",
-        method = lm,
-        fullrange = TRUE
-    ) +
-    ylim(1, 1.4) +
-    geom_hline(yintercept = 1.055, colour = "red", linetype = "dashed") +
-    facet_wrap(~country)
-ggsave("cumDeathsRatio.png",
-       plot = cumDeathsRatio, dpi = 720, width = 12, height = 7
-)
-
-dailyDeathsRatio <- ggplot(
-    df,
-    aes(x = day, y = dailyDeathsRatio, color = country)
-) +
-    geom_point() +
-    geom_line() +
-    geom_smooth(
-        data = dff,
-        size = 0.3,
-        colour = "black",
-        linetype = "dashed",
-        method = lm,
-        fullrange = TRUE
-    ) +
-    ylim(0, 2) +
-    facet_wrap(~country)
-ggsave("dailyDeathsRatio.png",
-       plot = dailyDeathsRatio, dpi = 720, width = 12, height = 7
-)
 
 # Modelling
 # see also: https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
