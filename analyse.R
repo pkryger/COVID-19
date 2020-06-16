@@ -96,47 +96,48 @@ pk_get_clean_df <- function(path) {
     return(df)
 }
 
+pk_enrich_and_filter_df <- function(df) {
+    firsts <- df %>%
+        filter(cumulative >= 50) %>%
+        summarize(first = min(date))
+
+    df <- left_join(
+        df %>% filter(cumulative >= 50),
+        firsts
+    ) %>%
+        mutate(day = as.integer(date - first))
+
+    df <- df %>%
+        mutate(
+            daily = pk_revcumsum(cumulative),
+            daily = pk_inter2(daily),
+            cumulativeRatio = pk_ratio(cumulative),
+            rollmean = rollmeanr(daily, 7, fill = NA)
+        )
+
+    df <- left_join(df, lookup) %>%
+        mutate(
+            cumulativeNorm = cumulative / population1M,
+            dailyNorm = daily / population1M,
+            rollmeanNorm = rollmeanr(dailyNorm, 7, fill = NA)
+        )
+
+    df <- df %>%
+        filter((country == "United Kingdom" & province == "")
+               | (country == "France" & province == "")
+               | country %in% c("Sweden", "Italy", "Spain", "US"))
+# Todo:-Spain, France, +Brazil, Russia, Mexico, India
+    return(df)
+}
+
 deaths <- pk_get_clean_df("csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
-
-first_deaths <- deaths %>%
-    filter(cumulative >= 50) %>%
-    summarize(firstDeath = min(date))
-
-
-df <- left_join(
-    deaths %>% filter(cumulative >= 50),
-    first_deaths
-) %>%
-    mutate(day = as.integer(date - firstDeath))
-
-df <- df %>%
-    mutate(
-        dailyDeaths = pk_revcumsum(cumulative),
-        dailyDeaths = pk_inter2(dailyDeaths),
-        cumDeathsRatio = pk_ratio(cumulative),
-        dailyDeathsRatio = pk_ratio(dailyDeaths),
-        rollmeanDeaths = rollmeanr(dailyDeaths, 7, fill = NA)
-    )
-
-df <- left_join(df, lookup) %>%
-    mutate(
-        cumDeathsNorm = cumulative / population1M,
-        dailyDeathsNorm = dailyDeaths / population1M,
-        dailyDeathsNorm = dailyDeaths / population1M,
-        rollmeanDeathsNorm = rollmeanr(dailyDeathsNorm, 7, fill = NA)
-    )
-
-df <- df %>%
-    filter((country == "United Kingdom" & province == "")
-           | (country == "France" & province == "")
-           | country %in% c("Sweden", "Italy", "Spain", "US"))
-#   | (country == "China" & province == "Hubei"))
+df <- pk_enrich_and_filter_df(deaths)
 
 cumDeaths <- ggplot(df, aes(x = day, y = cumulative, color = country)) +
     geom_point() +
     geom_line()
 
-cumDeathsNorm <- ggplot(df, aes(x = day, y = cumDeathsNorm, color = country)) +
+cumDeathsNorm <- ggplot(df, aes(x = day, y = cumulativeNorm, color = country)) +
     geom_point() +
     geom_line()
 
@@ -150,13 +151,13 @@ ggsave("cumDeathsNorm.png",
 
 
 dailyDeathsFct <- ggplot(data = df, mapping = aes(x = day)) +
-    geom_col(mapping = aes(y = dailyDeaths, fill = country)) +
-    geom_line(mapping = aes(y = rollmeanDeaths)) +
+    geom_col(mapping = aes(y = daily, fill = country)) +
+    geom_line(mapping = aes(y = rollmean)) +
     facet_wrap(~country)
 
 dailyDeathsNormFct <- ggplot(data = df, mapping = aes(x = day)) +
-    geom_col(mapping = aes(y = dailyDeathsNorm, fill = country)) +
-    geom_line(mapping = aes(y = rollmeanDeathsNorm)) +
+    geom_col(mapping = aes(y = dailyNorm, fill = country)) +
+    geom_line(mapping = aes(y = rollmeanNorm)) +
     facet_wrap(~country)
 
 ggsave("dailyDeathsFct.png",
@@ -183,7 +184,7 @@ dff <- df %>% filter(day > max(day) - 14)
 models <- df %>%
     filter(day > max(day) - 14) %>%
     do(
-        model = lm(cumDeathsRatio ~ day, .),
+        model = lm(cumulativeRatio ~ day, .),
         day = seq(min(.$day), max(df$day) + 8)
     )
 
@@ -197,7 +198,7 @@ predictions <- full_join(df, predictions)
 
 cumDeathsRatioModel <- ggplot(
     predictions,
-    aes(x = day, y = cumDeathsRatio, color = country)
+    aes(x = day, y = cumulativeRatio, color = country)
 ) +
     geom_point() +
     geom_line() +
