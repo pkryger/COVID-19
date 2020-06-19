@@ -124,9 +124,10 @@ pk_enrich_and_filter_df <- function(df, cutoff) {
 
     df <- df %>%
         filter((province == ""
-                & country %in% c("United Kingdom", "France"))
+                & country %in% c("United Kingdom"))
                | country %in% c("Sweden", "Italy", "US",
-                                "Brazil", "Russia", "Mexico", "India"))
+                                "Brazil", "Russia", "Mexico",
+                                "India", "Korea, South"))
 
     return(df)
 }
