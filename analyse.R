@@ -134,14 +134,14 @@ pk_enrich_and_filter_df <- function(df, cutoff) {
 
 pk_generate_charts <- function(df, name) {
     cumulativePlot <- ggplot(df, aes(x = day, y = cumulative, color = country)) +
-        geom_point() +
+        geom_point(aes(shape = country)) +
         geom_line()
     ggsave(paste("cum", name, ".png", sep=""),
            plot = cumulativePlot, dpi = 720, width = 7, height = 7
            )
 
     cumulativeNormPlot <- ggplot(df, aes(x = day, y = cumulativeNorm, color = country)) +
-        geom_point() +
+        geom_point(aes(shape = country)) +
         geom_line()
     ggsave(paste("cum", name, "Norm.png", sep=""),
            plot = cumulativeNormPlot, dpi = 720, width = 7, height = 7
@@ -191,7 +191,7 @@ pk_model_cumulativeRatio <- function(df, name) {
         predictions,
         aes(x = day, y = cumulativeRatio, color = country)
     ) +
-        geom_point() +
+        geom_point(aes(shape = country)) +
         geom_line() +
         geom_line(
             mapping = aes(x = day, y = pred),
@@ -239,7 +239,7 @@ df <- full_join(
 )
 
 deathsRatioPlot <- ggplot(df, aes(x = date, y = deaths / confirmed)) +
-    geom_point() +
+    geom_point(aes(shape = country)) +
     geom_line()
 
 ggsave("deathsRatio.png",
