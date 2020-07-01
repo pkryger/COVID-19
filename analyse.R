@@ -14,59 +14,6 @@ pk_ratio <- function(x) {
     return(x / lag(x, default = x[1]))
 }
 
-pk_inter <- function(x) {
-    if (length(x) > 2) {
-        if (length(x) - length(which(x == 0)) > 2) {
-            return(x %>%
-                na_if(0) %>%
-                na_interpolation(option = "linear") %>%
-                replace_na(0))
-        }
-        else {
-            return(x)
-        }
-    }
-    else {
-        return(x)
-    }
-}
-
-## Input missing values with the next known value divided by the number of
-## adjacent missing values plus 1. The known value is replaced as well.
-pk_inter2 <- function(x) {
-    if (length(x) < 3 |
-        length(x) - length(which(x == 0)) < 3) {
-        return(x)
-    }
-    y <- x
-    idx <- which(x == 0)
-    # while there are elements that are 0
-    while (0 < length(idx)) {
-        # from first element that is 0
-        first <- idx[1]
-        idx <- idx[-1]
-
-        # find last adjacent element that is 0
-        last <- first
-        while (0 < length(idx) & idx[1] == first + 1) {
-            last <- idx[1]
-            idx <- idx[-1]
-        }
-        # and go one past that
-        last <- last + 1
-
-        # only in case this is not a series of 0's in the end
-        if (last <= length(x)) {
-            # replace 0's with an average value
-            value <- (x[last] - x[first]) / (last - first + 1)
-            for (i in first:last) {
-                y[i] <- value
-            }
-        }
-    }
-    return(y)
-}
-
 lookup_raw <- read.csv("csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv")
 
 lookup <- lookup_raw %>%
@@ -110,7 +57,6 @@ pk_enrich_and_filter_df <- function(df, cutoff) {
     df <- df %>%
         mutate(
             daily = pk_revcumsum(cumulative),
-            daily = pk_inter2(daily),
             cumulativeRatio = pk_ratio(cumulative),
             rollmean = rollmeanr(daily, 7, fill = NA)
         )
