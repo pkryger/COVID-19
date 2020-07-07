@@ -187,7 +187,6 @@ df <- full_join(
 )
 
 deathsRatioPlot <- ggplot(df, aes(x = date, y = deaths / confirmed)) +
-    geom_point() +
     geom_line()
 
 ggsave("deathsRatio.png",
