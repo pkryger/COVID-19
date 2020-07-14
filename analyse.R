@@ -146,7 +146,7 @@ pk_model_cumulativeRatio <- function(df, name) {
             size = 0.3,
             linetype = "dashed"
         ) +
-        ylim(1, 1.3) +
+        ylim(1, 1.15) +
         geom_hline(
             yintercept = 1.055,
             colour = "black",
