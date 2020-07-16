@@ -72,7 +72,8 @@ pk_enrich_and_filter_df <- function(df, cutoff) {
                 & country %in% c("United Kingdom"))
                | country %in% c("Sweden", "Italy", "US",
                                 "Brazil", "Russia", "Mexico",
-                                "India", "Peru"))
+                                "India", "Peru", "South Africa",
+                                "Chile", "Iran"))
 
     return(df)
 }
