@@ -107,12 +107,15 @@ pk_generate_charts <- function(df, name) {
     dailyNormFctPlot <- ggplot(data = df, mapping = aes(x = day)) +
         geom_col(mapping = aes(y = dailyNorm, fill = country)) +
         geom_line(mapping = aes(y = rollmeanNorm)) +
+        ylim(0, if (name == "Deaths") 20 else 400) +
         facet_wrap(~country)
     ggsave(paste("daily", name, "NormFct.png", sep=""),
            plot = dailyNormFctPlot, dpi = 720, width = 12, height = 7
            )
 
-    cumulativeLog10Plot <- cumulativePlot + scale_y_log10()
+    cumulativeLog10Plot <- cumulativePlot +
+        scale_y_log10() +
+        ylim(1000, NA)
     ggsave(paste("cum", name, "Log10.png", sep=""),
            plot = cumulativeLog10Plot, dpi = 720, width = 7, height = 7
            )
