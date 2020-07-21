@@ -126,10 +126,10 @@ pk_generate_charts <- function(df, name) {
 pk_model_cumulativeRatio <- function(df, name) {
     # see also: https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
     models <- df %>%
-        filter(day > max(day) - 14) %>%
+        filter(day > max(day) - 21) %>%
         do(
             model = lm(cumulativeRatio ~ day, .),
-            day = seq(min(.$day), max(df$day) + 8)
+            day = seq(min(.$day), max(df$day) + 14)
         )
 
     predictions <- models %>% do(data.frame(
