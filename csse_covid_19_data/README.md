@@ -162,6 +162,7 @@ This section reports instances where large numbers of historical cases or deaths
 * August 8, spikes in Virginia cases are associated with the release of a backlog of testing. ([Source](https://wtop.com/virginia/2020/08/recent-surge-in-virginia-covid-19-numbers-due-to-data-backlog))
 * August 11, cases in California are likely to be erratic for the next several days/weeks as a systematic issue with underreporting is being addressed. See the disclaimer posted [here](https://covid19.ca.gov/data-and-tools/): "Note: Due to issues with the state’s electronic laboratory reporting system, these data represent an underreporting of actual positive cases in one single day."
 * August 12, The Massachusetts Department of Public Health changed their reporting methodology. The state is no longer reporting county level total cases and deaths daily. Massachusetts is now reporting state level confirmed cases and deaths daily, and are updating state level probable cases and county level confirmed cases weekly. In light of this change by the state, new cases and deaths are being aggregated in "Unassigned, Massachusetts".
+* August 14, National Health Ministry of Peru releases 3,658 historical deaths, leading to a large spike in our data. We will be monitoring the website for the distribution of these cases over time. ([Source](https://www.gob.pe/institucion/minsa/noticias/292693-ministerio-de-salud-presento-nueva-actualizacion-de-cifra-de-fallecidos-por-covid-19))
 
 ## Irregular Update Schedules
 As the pandemic has progressed, several locations have altered their reporting schedules to no longer provide daily updates. As these locations are identified, we will list them in this section of the README. We anticipate that these irregular updates will cause cyclical spikes in the data and smoothing algorithms should be applied if the data is to be used for modeling.
@@ -206,7 +207,7 @@ International
   *	Unassigned, US: UID = 840 (country code3) + 900XX (state FIPS code). Ranging from 8409001 to 84090056.
   *	US counties: UID = 840 (country code3) + XXXXX (5-digit FIPS code).
   *	Exception type 1, such as recovered and Kansas City, ranging from 8407001 to 8407999.
-  *	Exception type 2, only the New York City, which is replacing New York County and its FIPS code.
+  *	Exception type 2, New York City replaces New York County and its FIPS code. New York City popluation is calculated as Bronx (1,418,207) + Kings (2,559,903) + New York (1,628,706) + Queens (2,253,858) + Richmond (476,143) = NYC (8,336,817). Bristol Bay plus Lake Peninsula replaces Bristol Bay and its FIPS code. Population is 836 (Bristol Bay) + 1,592 (Lake and Peninsula) = 2,428 (Bristol Bay plus Lake Peninsula).
   *	Exception type 3, Diamond Princess, US: 84088888; Grand Princess, US: 84099999.
   * Exception type 4, municipalities in Puerto Rico are regarded as counties with FIPS codes. The FIPS code for the unassigned category is defined as 72999.
 4. Population data sources.
