@@ -115,8 +115,7 @@ pk_generate_charts <- function(df, name) {
            )
 
     cumulativeLog10Plot <- cumulativePlot +
-        scale_y_log10() +
-        ylim(1000, NA)
+        scale_y_log10(limits = c(1000, NA))
     ggsave(paste("cum", name, "Log10.png", sep=""),
            plot = cumulativeLog10Plot, dpi = 720, width = 7, height = 7
            )
