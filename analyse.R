@@ -78,7 +78,7 @@ pk_enrich_and_filter_df <- function(df, cutoff) {
     return(df)
 }
 
-pk_generate_charts <- function(df, name) {
+pk_generate_charts <- function(df, name, log10min) {
     cumulativePlot <- ggplot(df, aes(x = day, y = cumulative, color = country)) +
         geom_line() +
         geom_text(data = filter(df, day == max(day)),
@@ -115,7 +115,7 @@ pk_generate_charts <- function(df, name) {
            )
 
     cumulativeLog10Plot <- cumulativePlot +
-        scale_y_log10(limits = c(1000, NA))
+        scale_y_log10(limits = c(log10min, NA))
     ggsave(paste("cum", name, "Log10.png", sep=""),
            plot = cumulativeLog10Plot, dpi = 720, width = 7, height = 7
            )
@@ -169,7 +169,7 @@ deaths <- pk_get_clean_df(paste("csse_covid_19_data",
                                 sep="/"))
 deaths %>%
     pk_enrich_and_filter_df(cutoff=50) %>%
-    pk_generate_charts(name="Deaths") %>%
+    pk_generate_charts(name="Deaths", log10min=5000) %>%
     pk_model_cumulativeRatio(name="Deaths")
 
 # Province/State,Country/Region,Lat,Long
@@ -179,7 +179,7 @@ confirmed <- pk_get_clean_df(paste("csse_covid_19_data",
                                    sep="/"))
 confirmed %>%
     pk_enrich_and_filter_df(cutoff=100) %>%
-    pk_generate_charts(name="Confirmed") %>%
+    pk_generate_charts(name="Confirmed", log10min=50000) %>%
     pk_model_cumulativeRatio(name="Confirmed")
 
 
