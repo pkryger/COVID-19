@@ -109,7 +109,7 @@ pk_generate_charts <- function(df, name, log10min) {
     dailyNormFctPlot <- ggplot(data = df, mapping = aes(x = day)) +
         geom_col(mapping = aes(y = dailyNorm, fill = country)) +
         geom_line(mapping = aes(y = rollmeanNorm)) +
-        ylim(0, if (name == "Deaths") 20 else 400) +
+        ylim(0, if (name == "Deaths") 20 else 500) +
         facet_wrap(~country)
     ggsave(paste("daily", name, "NormFct.png", sep=""),
            plot = dailyNormFctPlot, dpi = 720, width = 12, height = 7
