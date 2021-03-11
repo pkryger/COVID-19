@@ -138,7 +138,8 @@ pk_model_cumulativeRatio <- function(df, name) {
                                   day = .$day,
                                   pred = predict(.$model, newdata = .)
                               ))
-    predictions <- full_join(df, predictions)
+    predictions <- full_join(df %>% filter(day > max(day) - 180),
+                             predictions)
 
     cumulativeRatioModelPlot <- ggplot(
         predictions,
@@ -150,7 +151,7 @@ pk_model_cumulativeRatio <- function(df, name) {
             size = 0.3,
             linetype = "dashed"
         ) +
-        ylim(1, 1.15) +
+        ylim(1, 1.10) +
         geom_hline(
             yintercept = 1.055,
             colour = "black",
